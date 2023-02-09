@@ -32,6 +32,15 @@ FLRIG=$(echo $RIG | grep "\-m 4")
 	fi
 fi
 
+#Check if wsjtx is running
+WSJTX=$(pidof wsjtx)
+	if [ ! -z "$WSJTX" ]; then
+	yad --title="FAILED" --width=400 --height=100 \
+	--image $LOGO --window-icon=$LOGO --image-on-top --text-align=center \
+	--center --form --text="WSJT-X is running please shutdown and try again" \
+	--button=gtk-ok
+	exit
+	fi
 #Check if modem is already running
 MODEMCHECK=$(ps aux | grep -i box86 | grep -i varafm)
 	if [ ! -z "$MODEMCHECK" ]; then
@@ -108,11 +117,11 @@ SETRIG
 fi
 
 echo "starting VARA HF"
-/usr/local/bin/wine $HOME/.wine/drive_c/VARA/VARA.exe > /dev/null 2>&1 &
+/usr/bin/wine $HOME/.wine/drive_c/VARA/VARA.exe > /dev/null 2>&1 &
 sleep 7 #give vara time to start
 
 #verify vara has started
-PIDVARA=$(ps aux | grep -i box86 | grep VARA.exe)
+PIDVARA=$(ps aux | grep .wine | grep VARA.exe)
 if [ -z "$PIDVARA" ]
 then
 yad --title="FAILED" --width=400 --height=100 \
@@ -130,14 +139,9 @@ fi
 
 sleep 1
 #restart pat so terminal window correctly reflects rig control
-sudo systemctl restart pat@`whoami`
+sudo -A systemctl restart pat@`whoami`
 
 echo "starting browser"
 #open pat inbox in browser
 export DISPLAY=:0 && xdg-open http://127.0.0.1:$PORT > /dev/null 2>&1
-
-#echo "cleaning up and closing"
-#varapid=`ps aux | grep -i box86 | grep VARA.exe`
-#kill $varapid > /dev/null 2>&1
-#kill $rigpid > /dev/null 2>&1
 
