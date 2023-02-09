@@ -26,8 +26,18 @@ FLRIG=$(echo $RIG | grep "\-m 4")
 	fi
 fi
 
+#Check if wsjtx is running
+WSJTX=$(pidof wsjtx)
+	if [ ! -z "$WSJTX" ]; then
+	yad --title="FAILED" --width=400 --height=100 \
+	--image $LOGO --window-icon=$LOGO --image-on-top --text-align=center \
+	--center --form --text="WSJT-X is running please shutdown and try again" \
+	--button=gtk-ok
+	exit
+	fi
+
 #Check if modem is already running
-MODEMCHECK=$(pidof piardopc)
+MODEMCHECK=$(pidof ardopc64)
 if [ -z "$MODEMCHECK" ]; then
 echo
 else
@@ -94,21 +104,21 @@ WHO=$(whoami)
 	then	
 	CONTROL=$(cat $MYPATH/config | grep '^RIG="' | sed 's/RIG="//' | sed 's/"//' | sed 's/rigctl/rigctld/')
 	$CONTROL &
-	sudo systemctl restart pat@$WHO
+	sudo -A systemctl restart pat@$WHO
 	fi
 SETRIG
 fi
 
 #Start ARDOP_GUI
-$ARDOPGUI </dev/null &>/dev/null &			
+#$ARDOPGUI </dev/null &>/dev/null &			
 
 #start modem
-lxterminal --geometry=55x10 -e $ARDOP </dev/null &>/dev/null &
+xfce4-terminal -e "$ARDOP" </dev/null &>/dev/null &
 sleep 2
 
 
 #verify that piardopc is running
-PIDPIC=$(pidof piardopc)
+PIDPIC=$(pidof ardopc64)
 if [ -z "$PIDPIC" ]
 then
 yad --title="FAILED" --width=400 --height=100 \
@@ -123,7 +133,7 @@ yad --title="ARDOP MODEM" --width=400 --height=100 \
 fi
 
 #restart pat so terminal window correctly reflects rig control
-sudo systemctl restart pat@`whoami`
+sudo -A systemctl restart pat@`whoami`
 
 #open pat inbox in browser
 export DISPLAY=:0 && xdg-open http://127.0.0.1:$PORT > /dev/null 2>&1 &
