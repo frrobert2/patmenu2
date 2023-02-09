@@ -22,6 +22,7 @@ Corr-Wireless=@corrwireless.net
 Dobson=@mobile.dobson.net
 Edge-Wireless=@sms.edgewireless.com
 Fido=@fido.ca
+Google=@msg.fi.google.com
 Golden-Telecom=@sms.goldentele.com
 Helio=@messaging.sprintpcs.com
 Houston-Cellular=@text.houstoncellular.net
